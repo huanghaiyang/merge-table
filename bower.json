@@ -1,0 +1,26 @@
+{
+  "name": "merge-table",
+  "version": "1.0.0",
+  "authors": [
+    "huanghaiyang <huanhai24@sina.com>"
+  ],
+  "description": "it used to operate a html table , inclue to merge / split / add / a column or a th / td",
+  "main": "views/layout.jade",
+  "keywords": [
+    "table",
+    "merge"
+  ],
+  "license": "MIT",
+  "homepage": "www.github.com/huanghaiyang",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.3",
+    "bootstrap": "~3.3.4"
+  }
+}
