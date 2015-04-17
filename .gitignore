@@ -1,0 +1,13 @@
+.DS_Store
+dist/
+dist/merge-table.min.js
+dist/merge-table.js
+pkg
+*.swp
+docs/*
+.jhw-cache
+.rbenv-version
+public
+node_modules
+temp/
+npm-debug.log

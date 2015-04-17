@@ -1,0 +1,31 @@
+{
+  "name": "merge-table",
+  "version": "1.0.0",
+  "description": "it used to operate a html table , inclue to merge / split / add / a column or a th / td ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://www.github.com/huanghaiyang/merge-table.git"
+  },
+  "keywords": [
+    "table",
+    "merge"
+  ],
+  "author": "huanghaiyang",
+  "license": "MIT",
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-contrib-concat": "^0.5.1",
+    "grunt-contrib-copy": "^0.8.0",
+    "grunt-contrib-jshint": "^0.11.2",
+    "grunt-contrib-nodeunit": "^0.4.1",
+    "grunt-contrib-requirejs": "^0.4.4",
+    "grunt-contrib-uglify": "^0.9.1",
+    "grunt-css": "^0.5.4",
+    "grunt-strip": "^0.2.1"
+  }
+}
