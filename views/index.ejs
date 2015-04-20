@@ -9,8 +9,10 @@
     <!-- build:css(.) styles/vendor.css -->
     <!-- bower:css -->
     <link rel="stylesheet" href="/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="/stylesheets/style.css" />
   </head>
   <body ng-app="mergeTableApp">
+    <% include inc/nav %>
     <div class="container">
     <div ng-view=""></div>
     </div>
@@ -27,25 +29,10 @@
        ga('send', 'pageview');
     </script>
 
-    <!-- build:js(.) scripts/vendor.js -->
-    <!-- bower:js -->
-    <script src="/jquery/dist/jquery.js"></script>
-    <script src="/angular/angular.js"></script>
-    <script src="/bootstrap/dist/js/bootstrap.js"></script>
-    <script src="/angular-animate/angular-animate.js"></script>
-    <script src="/angular-aria/angular-aria.js"></script>
-    <script src="/angular-cookies/angular-cookies.js"></script>
-    <script src="/angular-messages/angular-messages.js"></script>
-    <script src="/angular-resource/angular-resource.js"></script>
-    <script src="/angular-route/angular-route.js"></script>
-    <script src="/angular-sanitize/angular-sanitize.js"></script>
-    <script src="/angular-touch/angular-touch.js"></script>
-    <!-- endbower -->
-    <!-- endbuild -->
+    <% include inc/scripts %>
 
-        <!-- build:js({.tmp,app}) scripts/scripts.js -->
-        <script src="/javascripts/app.js"></script>
-        <script src="/javascripts/controller/mainCtrl.js"></script>
-        <!-- endbuild -->
+    <% include inc/ctrls %>
+
+    <% include inc/divts %>
 </body>
 </html>
