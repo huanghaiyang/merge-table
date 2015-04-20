@@ -7,7 +7,6 @@ pkg
 docs/*
 .jhw-cache
 .rbenv-version
-public
 node_modules
 temp/
 npm-debug.log
