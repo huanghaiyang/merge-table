@@ -1,0 +1,11 @@
+<div ng-controller='mainCtrl'>
+
+	<%
+	var supplies=['mop', 'broom', 'duster']	;
+	%>
+	<ul>
+	<% for(var i=0; i<supplies.length; i++) {%>
+	   <li><%= supplies[i] %></li>
+	<% } %>
+	</ul>
+</div>
