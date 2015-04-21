@@ -68,8 +68,6 @@ var MergeTable = window.MergeTable = (function() {
 		place: [],
 		// 当前被选择的单元格下标数组
 		selection: [],
-		// 当前处于编辑状态的单元格下标
-		edition: {},
 		// 被选择的单元格的范围
 		range: {
 			// 开始单元格，鼠标按下时的单元格下标
@@ -1211,7 +1209,6 @@ var MergeTable = window.MergeTable = (function() {
 		persist.storage = [];
 		persist.place = [];
 		persist.selection = [];
-		persist.edition = {};
 		persist.range = {};
 		persist.mouse.status = -1;
 	};
@@ -1461,77 +1458,6 @@ var MergeTable = window.MergeTable = (function() {
 		return exist && num === 1;
 	};
 
-	function checkCellHaveEditableInput(index, ele) {
-		var flag = false;
-		for (var i in persist.edition) {
-			if (i === index && persist.edition[i]) {
-				flag = true;
-				break;
-			}
-		}
-		if (ele.innerHTML.toLowerCase().indexOf("<input") !== -1)
-			flag = true;
-		return flag;
-	};
-
-	function contentEditable(ele, index) {
-		if (checkCellHaveEditableInput(index, ele))
-			return;
-		var input = document.createElement("input");
-		input.type = "text";
-		input.style.cssText = "width:100%;height:100%";
-		input.className = "cell_input";
-		var height_ = ele.offsetHeight;
-		var width_ = ele.offsetWidth;
-		input.style.height = (height_ - 5) + "px";
-		input.style.width = (width_ - 3) + "px";
-		input.value = ele.innerHTML;
-		ele.innerHTML = "";
-		ele.appendChild(input);
-		if (window.navigator.userAgent.toLowerCase().indexOf("firefox") !== -1)
-			input.focus();
-		AttachEvent(input, "click", function(e) {
-			document.getElementById(id).onselectstart = function() {};
-			TableUtils.preventEvent(e);
-		}, false);
-		AttachEvent(input, "focus", function(e) {
-			document.getElementById(id).onselectstart = function() {};
-			TableUtils.preventEvent(e);
-		}, false);
-		AttachEvent(input, "mousedown", function(e) {
-			document.getElementById(id).onselectstart = function() {};
-			TableUtils.preventEvent(e);
-		}, false);
-		// TODO IE8 发生单元格抖动 !
-		if (input)
-			setTimeout(function() {
-				try {
-					input.focus();
-					// 清空可编辑文本框的缓存数组
-					persist.edition = {};
-					// 将当前显示的文本框添加到数组缓存中
-					persist.edition[index] = input;
-					document.getElementById(id).onselectstart = function() {};
-				} catch (e) {}
-			}, 0);
-		// 文本框失去焦点消失
-		AttachEvent(input, "blur", function() {
-			setTimeout(function() {
-				var cellTd = input.parentNode;
-				var inputValue = input.value.Trim();
-				if (cellTd) {
-					// 将文本框中的值取出添加到单元格显示
-					cellTd.removeChild(input);
-				}
-				// 清空可编辑文本框的缓存数组
-				persist.edition = {};
-
-			}, 0);
-		}, false);
-
-		AttachEvent(input, "keydown", InputKeyDown, false);
-	};
-
 	var InputKeyDown = function(evt) {
 		var e = window.event || evt;
 		var key = e.keyCode;
@@ -1545,64 +1471,9 @@ var MergeTable = window.MergeTable = (function() {
 		// paste.
 		if (e.ctrlKey && (key == 86 || key == 118)) {
 			e.keyCode = 0;
-			AffixSingleColumn(evtSrc);
 			evtSrc.blur();
 			// 阻止默认事件
 			TableUtils.preventEvent(e);
-		}
-	};
-
-	// 获取粘贴板数据，仅支持IE
-
-	function getClipboard() {
-		if (window.clipboardData) {
-			return (window.clipboardData.getData('Text'));
-		}
-	};
-
-	// 粘贴数据
-
-	function AffixSingleColumn(evt) {
-		var content = getClipboard();
-		if (content === undefined)
-			return;
-		var valArray = content.split("\n");
-		var valArrayLen = valArray.length;
-		if (evt.parentElement == null) return;
-		var index = getCellIndex(evt.parentNode);
-		var indexObj = TableUtils.index2Obj(index)
-		var rowindex = indexObj.y;
-		var cellindex = indexObj.x;
-
-		for (var j = 0; j < valArrayLen; j++) {
-			if (valArray[j] == "") continue;
-			var arry = valArray[j].split("\t");
-			for (var i = 0; i < arry.length; i++) {
-				if (persist.storage[rowindex + j]) {
-					var cell = persist.storage[rowindex + j][cellindex + i];
-					if (cell) {
-						var inps = cell.getElementsByTagName('input');
-						if (inps.length > 0) {
-							cell.children[0].value = arry[i].trim();
-						} else {
-								cell.innerHTML = arry[i].trim();
-						}
-					}
-				}
-			}
-		}
-	};
-
-	// 清除表格的可编辑状态
-
-	function clearEditable() {
-		for (var i in persist.edition) {
-			var input = persist.edition[i];
-			if (input && input.parentNode) {
-				var val = input.value.Trim();
-				var cell = input.parentNode;
-				cell.innerHTML = val;
-			}
 		}
 	};
 
@@ -1628,8 +1499,6 @@ var MergeTable = window.MergeTable = (function() {
 		e = e || window.event;
 		switch (e.keyCode) {
 			case 46:
-				// 先清除可编辑
-				clearEditable();
 				var selection2ArrayStack = selectionTrans2ArrayStack();
 				for (var i = 0; i < selection2ArrayStack.length; i++) {
 					for (var j = 0; j < selection2ArrayStack[i].length; j++) {
@@ -1795,7 +1664,6 @@ var MergeTable = window.MergeTable = (function() {
 				clearSelection();
 				select();
 				renderSelection();
-				clearEditable();
 			}
 		}
 	};
@@ -1815,8 +1683,6 @@ var MergeTable = window.MergeTable = (function() {
 		document.getElementById(id).onselectstart = function() {};
 		// 设置鼠标弹起状态
 		persist.mouse.status = -1;
-		// 清空编辑缓存
-		persist.edition = {};
 		// 格式刷已经开启
 		if (checkBrushFormatOpened() === true) {
 			// 格式选区不存在
@@ -1926,19 +1792,7 @@ var MergeTable = window.MergeTable = (function() {
 		} else {
 			// 没开启格式刷时单元格被选中的样式
 			ele.style.backgroundColor = defaults.normal;
-			// 检查单元格是否可编辑
-			if (checkCellEditable(ele)) {
-				// 设置可编辑单元格
-				contentEditable(ele, index);
-			}
 		}
-	};
-
-	// 检查单元格是否可编辑
-	// TODO 没用了
-
-	function checkCellEditable(cell) {
-		return true;
 	};
 
 	// 设置被选中单元格的样式
@@ -2026,10 +1880,8 @@ var MergeTable = window.MergeTable = (function() {
 	// 读取
 
 	function read() {
-
 		// TODO 不使用清空当前选区的方法也能获取正确的表格字符串
 		clearSelection();
-		clearEditable();
 		if (defaults.nullRowRomoved)
 			removeNullRows();
 		return document.getElementById(id).innerHTML;
@@ -2070,8 +1922,6 @@ var MergeTable = window.MergeTable = (function() {
 		persist.brush.status = 0;
 		// 清空选区
 		clearSelection();
-		// 清空可编辑文本
-		clearEditable();
 	};
 
 	// 关闭格式刷
@@ -2269,7 +2119,6 @@ var MergeTable = window.MergeTable = (function() {
 		}
 		var selection = Array.prototype.slice.call(persist.selection);
 		clearSelection();
-		clearEditable();
 		removeNullRows();
 		var rows = findRowsBySelection(selection);
 		var thead = getLastThead();
@@ -2304,7 +2153,6 @@ var MergeTable = window.MergeTable = (function() {
 		}
 		var selection = Array.prototype.slice.call(persist.selection);
 		clearSelection();
-		clearEditable();
 		removeNullRows();
 		var rows = findRowsBySelection(selection);
 		if (rows[0].parentNode.tagName.toLowerCase() === "thead") {
@@ -2339,7 +2187,6 @@ var MergeTable = window.MergeTable = (function() {
 		}
 		var selection = Array.prototype.slice.call(persist.selection);
 		clearSelection();
-		clearEditable();
 		removeNullRows();
 		var rows = findRowsBySelection(selection);
 		var tfoot = getLastTfoot();
@@ -2375,7 +2222,6 @@ var MergeTable = window.MergeTable = (function() {
 		}
 		var selection = Array.prototype.slice.call(persist.selection);
 		clearSelection();
-		clearEditable();
 		removeNullRows();
 		var selection2ArrayStack = selectionTrans2ArrayStack(selection);
 		for (var i = 0; i < selection2ArrayStack.length; i++) {
@@ -2407,7 +2253,6 @@ var MergeTable = window.MergeTable = (function() {
 		}
 		var selection = Array.prototype.slice.call(persist.selection);
 		clearSelection();
-		clearEditable();
 		removeNullRows();
 		var selection2ArrayStack = selectionTrans2ArrayStack(selection);
 		for (var i = 0; i < selection2ArrayStack.length; i++) {
@@ -2473,7 +2318,6 @@ var MergeTable = window.MergeTable = (function() {
 		if (type_ == type)
 			return;
 		clearSelection();
-		clearEditable();
 		removeNullRows();
 		var selection2ArrayStack = selectionTrans2ArrayStack(selection);
 		var start = TableUtils.index2Obj(selection2ArrayStack[0][0]).y;
@@ -2532,8 +2376,6 @@ var MergeTable = window.MergeTable = (function() {
 			}
 		}
 		clearSelection();
-		clearEditable();
-		persist.edition = {};
 		// 清空选区范围
 		persist.range = {
 			start: null,
