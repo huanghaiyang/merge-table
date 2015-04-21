@@ -33,8 +33,11 @@ angular.module('mergeTableApp')
 				$scope.cnumberArray[i] = i;
 			}
 		});
-		var tableContainer = $("#tableContainer");
-		$scope.generateTable = function() {
-			tableContainer.html("");
+		$scope.initTable = function() {
+			var tableContainer = $("#tableContainer");
+			StorageTable.load(tableContainer.children().first()[0]);
+			MergeTable.init("tableContainer", tableContainer.html());
 		};
+		for (var i in MergeTable)
+			$scope[i] = MergeTable[i];
 	});

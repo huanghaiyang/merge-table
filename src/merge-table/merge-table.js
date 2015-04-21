@@ -56,16 +56,6 @@ var MergeTable = window.MergeTable = (function() {
 		nullRowRomoved: true,
 		// 行不存在提示
 		noRowExist: "对不起，行不存在!",
-		// 显示单元格excel下标的input元素
-		indexInput: null,
-		// 显示单元格公式的input元素
-		formulaInput: null,
-		// 公式属性
-		fmla: "formula",
-		// 显示格式文本框
-		formationInput: null,
-		realvalue: "realvalue",
-		showformat: "showformat",
 		td_type: "td_type",
 		tb_type: "tb_type"
 	};
@@ -115,6 +105,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 获取同行前置不为空的单元格
+
 	function getPreviousSiblingStorageElementNotNull(y, x) {
 		var x_ = x - 1;
 		if (x_ >= 0) {
@@ -129,6 +120,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 转换二维数组
+
 	function selectionTrans2ArrayStack(selection) {
 		selection = selection ? selection : persist.selection;
 		var selection2Array = [];
@@ -154,6 +146,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 合并单元格
+
 	function merge() {
 		// 单元格是否可以合并
 		if (checkMerge()) {
@@ -241,6 +234,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 清除单元格的格式，完全拆分
+
 	function clearMerge() {
 		// 当前是否只选择了一个单元格
 		if (checkSelectionOne()) {
@@ -255,6 +249,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 完全拆分单元格的操作
+
 	function clearMergeHandler(y, x) {
 		// 下一行
 		var nextRow = null;
@@ -300,6 +295,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 检查单元格是否可以被完全拆分
+
 	function checkMerge() {
 		if (checkSelection() && persist.selection.length > 1)
 			return true;
@@ -308,6 +304,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 横拆操作
+
 	function splitVHandler(y, x) {
 		// 获取单元格
 		var cell = persist.storage[y][x];
@@ -1209,6 +1206,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 清除数据保存
+
 	function clear() {
 		persist.storage = [];
 		persist.place = [];
@@ -1487,7 +1485,7 @@ var MergeTable = window.MergeTable = (function() {
 		var width_ = ele.offsetWidth;
 		input.style.height = (height_ - 5) + "px";
 		input.style.width = (width_ - 3) + "px";
-		input.value = ele.getAttribute(defaults.realvalue) !== null || ele.getAttribute(defaults.showformat) !== null ? (ele.getAttribute(defaults.realvalue) !== null ? ele.getAttribute(defaults.realvalue) : "") : ele.innerHTML;
+		input.value = ele.innerHTML;
 		ele.innerHTML = "";
 		ele.appendChild(input);
 		if (window.navigator.userAgent.toLowerCase().indexOf("firefox") !== -1)
@@ -1524,19 +1522,9 @@ var MergeTable = window.MergeTable = (function() {
 				if (cellTd) {
 					// 将文本框中的值取出添加到单元格显示
 					cellTd.removeChild(input);
-					cellTd.setAttribute(defaults.realvalue, inputValue);
-					showFormatterValue(cellTd);
 				}
 				// 清空可编辑文本框的缓存数组
 				persist.edition = {};
-
-				ExcelFormula.updateOneStorage({
-					key: TableUtils.index2Tag(index),
-					val: inputValue
-				});
-
-				var result_arr = ExcelFormula.excute(TableUtils.index2Tag(index));
-				useResult(result_arr);
 
 			}, 0);
 		}, false);
@@ -1558,15 +1546,14 @@ var MergeTable = window.MergeTable = (function() {
 		if (e.ctrlKey && (key == 86 || key == 118)) {
 			e.keyCode = 0;
 			AffixSingleColumn(evtSrc);
-			// 失去焦点用以触发公式的计算
 			evtSrc.blur();
-			refreshForlumaAndStorage();
 			// 阻止默认事件
 			TableUtils.preventEvent(e);
 		}
 	};
 
 	// 获取粘贴板数据，仅支持IE
+
 	function getClipboard() {
 		if (window.clipboardData) {
 			return (window.clipboardData.getData('Text'));
@@ -1574,6 +1561,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 粘贴数据
+
 	function AffixSingleColumn(evt) {
 		var content = getClipboard();
 		if (content === undefined)
@@ -1594,13 +1582,9 @@ var MergeTable = window.MergeTable = (function() {
 					var cell = persist.storage[rowindex + j][cellindex + i];
 					if (cell) {
 						var inps = cell.getElementsByTagName('input');
-						cell.setAttribute(defaults.realvalue, arry[i].trim());
 						if (inps.length > 0) {
 							cell.children[0].value = arry[i].trim();
 						} else {
-							if (cell.getAttribute(defaults.showformat))
-								showFormatterValue(cell);
-							else
 								cell.innerHTML = arry[i].trim();
 						}
 					}
@@ -1610,23 +1594,20 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 清除表格的可编辑状态
+
 	function clearEditable() {
 		for (var i in persist.edition) {
 			var input = persist.edition[i];
 			if (input && input.parentNode) {
 				var val = input.value.Trim();
 				var cell = input.parentNode;
-				if (cell.getAttribute(defaults.realvalue) || cell.getAttribute(defaults.showformat)) {
-					cell.setAttribute(defaults.realvalue, val);
-					if (cell.getAttribute(defaults.showformat))
-						showFormatterValue(cell);
-				} else
-					cell.innerHTML = val;
+				cell.innerHTML = val;
 			}
 		}
 	};
 
 	// 表格初始化
+
 	function init(id_, str, options) {
 		id = id_;
 		for (var i in options) {
@@ -1639,11 +1620,10 @@ var MergeTable = window.MergeTable = (function() {
 		}
 		// 将事件监听加到body上
 		AttachEvent(document.body, "keydown", clearSelectionInnerHTML, false);
-		if (defaults.formulaInput)
-			AttachEvent(defaults.formulaInput, "blur", doFormulaProxy(), false);
 	};
 
 	// delete快捷键删除单元格内容
+
 	function clearSelectionInnerHTML(e) {
 		e = e || window.event;
 		switch (e.keyCode) {
@@ -1659,15 +1639,11 @@ var MergeTable = window.MergeTable = (function() {
 						if (persist.storage[obj.y][obj.x]) {
 							// 清除内容
 							persist.storage[obj.y][obj.x].innerHTML = "";
-							if (persist.storage[obj.y][obj.x].getAttribute(defaults.realvalue))
-								persist.storage[obj.y][obj.x].setAttribute(defaults.realvalue, "");
 						}
 					}
 				}
 				// 最后清除选区
 				clearSelection();
-				// 计算
-				refreshForlumaAndStorage();
 			default:
 				break;
 		}
@@ -1691,6 +1667,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 加载表格
+
 	function load() {
 		tableChildren = {};
 		var tableContainer = document.getElementById(id);
@@ -1767,7 +1744,6 @@ var MergeTable = window.MergeTable = (function() {
 						}
 					}
 				}
-				showFormatterValue(cell);
 			}
 		}
 	};
@@ -1778,6 +1754,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 表格写入
+
 	function write(str, flag) {
 		if (flag === true)
 			persist.originStr = str;
@@ -1785,12 +1762,12 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 根据字符串创建表格，flag表示是否清空当前的表格缓存数据
+
 	function create(str, flag) {
 		if (flag === true)
 			clear();
 		loadStr(str);
 		load();
-		refreshForlumaAndStorage();
 	};
 
 	function onCellMouseOver(e) {
@@ -1815,10 +1792,6 @@ var MergeTable = window.MergeTable = (function() {
 			index += defaults.separator + regionIdnex;
 			if (regionIdnex === TableUtils.index2Region(persist.range.start) || checkBrushSelected() && checkBrushFormatOpened()) {
 				persist.range.end = index;
-				if (persist.range.start == persist.range.end)
-					setCellIndexInput(persist.range.start);
-				else
-					setCellRangeInput(persist.range.start, persist.range.end);
 				clearSelection();
 				select();
 				renderSelection();
@@ -1828,6 +1801,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 单元格触发mouseup事件
+
 	function onCellMouseUp(e) {
 		e = e || window.event;
 		var ele = e.srcElement || e.currentTarget;
@@ -1836,6 +1810,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 对单元格启用mouseup
+
 	function onCellMouseUpHandler(ele) {
 		document.getElementById(id).onselectstart = function() {};
 		// 设置鼠标弹起状态
@@ -1883,8 +1858,6 @@ var MergeTable = window.MergeTable = (function() {
 				persist.brush.selectedAttrs = {};
 			}
 		}
-
-		setCellIndexInput(persist.range.start);
 	};
 
 	var onCellMouseDownProxy = function(ele) {
@@ -1896,6 +1869,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 单元格对应下标索引
+
 	function getCellIndex(ele) {
 		// 单元格所在行号
 		var rowIndex = TableUtils.fixedRowIndex(ele.parentNode);
@@ -1913,48 +1887,8 @@ var MergeTable = window.MergeTable = (function() {
 		return index;
 	};
 
-	// 显示cellindex到页面
-	function setCellIndexInput(index) {
-		var str = "";
-		if (index) {
-			if (defaults.indexInput) {
-				defaults.indexInput.value = TableUtils.index2Tag(index);
-			}
-		}
-	};
-
-	function setCellRangeInput(start, end) {
-		var str = "";
-		if (start && end) {
-			if (defaults.indexInput) {
-				var obj1 = TableUtils.index2Obj(start);
-				var obj2 = TableUtils.index2Obj(end);
-				defaults.indexInput.value = (Math.abs(obj1.y - obj2.y) + 1 + "R") + " x " + (Math.abs(obj1.x - obj2.x) + 1 + "C");
-			}
-		}
-	};
-
-	// 将单元格对应的公式显示到页面
-	function setFmlaInput(ele) {
-		if (ele) {
-			if (defaults.formulaInput) {
-				defaults.formulaInput.value = ele.getAttribute(defaults.fmla) ? unescape(ele.getAttribute(defaults.fmla)) : "";
-			}
-		}
-	};
-
-	// 将单元格格式显示到页面
-	function setFormationInput(ele) {
-		if (ele) {
-			if (defaults.formationInput) {
-				var formation = ele.getAttribute(defaults.showformat) ? unescape(ele.getAttribute(defaults.showformat)) : "";
-				defaults.formationInput.value = formation;
-				defaults.formationInput.title = "当前单元格格式为:" + formation;
-			}
-		}
-	};
-
 	// 鼠标按下操作
+
 	function onCellMouseDown(ele) {
 		// 清除选区
 		clearSelection();
@@ -1966,9 +1900,6 @@ var MergeTable = window.MergeTable = (function() {
 		// 单元格对应下标
 		var index = getCellIndex(ele);
 
-		setCellIndexInput(index);
-		setFmlaInput(ele);
-		setFormationInput(ele);
 		index += defaults.separator + regionIdnex;
 		// 选区起始下标
 		persist.range.start = index;
@@ -2005,11 +1936,13 @@ var MergeTable = window.MergeTable = (function() {
 
 	// 检查单元格是否可编辑
 	// TODO 没用了
+
 	function checkCellEditable(cell) {
 		return true;
 	};
 
 	// 设置被选中单元格的样式
+
 	function setSelectionCss(css) {
 		// 选区为空
 		if (persist.selection.length <= 0) {
@@ -2049,6 +1982,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 设置选区单元格的样式类
+
 	function setSelectionCssClass(cls) {
 		// 选区为空
 		if (persist.selection.length <= 0) {
@@ -2090,6 +2024,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 读取
+
 	function read() {
 
 		// TODO 不使用清空当前选区的方法也能获取正确的表格字符串
@@ -2101,6 +2036,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 获取被选中的单元格
+
 	function getSelectionCells() {
 		var selectionCells = [];
 		var selection2ArrayStack = selectionTrans2ArrayStack();
@@ -2128,6 +2064,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 打开格式刷
+
 	function openBrushFormat() {
 		// 设置格式刷可用
 		persist.brush.status = 0;
@@ -2138,6 +2075,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 关闭格式刷
+
 	function closeBrushFormat() {
 		// 设置格式刷状态不可用
 		persist.brush.status = -1;
@@ -2167,6 +2105,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 检查格式刷是否打开 
+
 	function checkBrushFormatOpened() {
 		if (persist.brush.status === 0)
 			return true;
@@ -2175,6 +2114,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 检查格式刷的样式单元格是否被选中
+
 	function checkBrushSelected() {
 		if (persist.brush.selected === -1)
 			return false;
@@ -2183,23 +2123,22 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 提供行号，检查此行是否是空行
+
 	function checkNullRow(y) {
 		if (persist.storage[y]) {
-		    if(persist.storage[y].length >0)
-		    {
-			var i = 0;
-			while (!persist.storage[y][i]) {
-				i++;
+			if (persist.storage[y].length > 0) {
+				var i = 0;
+				while (!persist.storage[y][i]) {
+					i++;
+					if (i === persist.storage[y].length)
+						break;
+				}
 				if (i === persist.storage[y].length)
-					break;
-			}
-			if (i === persist.storage[y].length)
+					return true;
+				else
+					return false;
+			} else
 				return true;
-			else
-				return false;
-		    }
-			else
-			    return true;
 		} else {
 			alert(defaults.noRowExist);
 			return undefined;
@@ -2207,6 +2146,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 获取行
+
 	function getRow(y) {
 		var tableContainer = document.getElementById(id);
 		var table = TableUtils.firstChild(tableContainer);
@@ -2214,6 +2154,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 移除空行
+
 	function removeNullRows() {
 		for (var i = 0; i < persist.storage.length; i++) {
 			if (checkNullRow(i)) {
@@ -2225,12 +2166,14 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 还原到最初的表格
+
 	function restore() {
 		if (persist.originStr)
 			create(persist.originStr, true);
 	};
 
 	// 根据选区获取单元行
+
 	function findRowsBySelection(selection) {
 		var selection2ArrayStack = selectionTrans2ArrayStack(selection);
 		var rows = [];
@@ -2243,6 +2186,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 获取最后一个thead
+
 	function getLastThead() {
 		var thead = null;
 		for (var i in tableChildren) {
@@ -2256,6 +2200,7 @@ var MergeTable = window.MergeTable = (function() {
 
 	// 获取第一个thead
 	// not used
+
 	function getFirstThead() {
 		var thead = null;
 		for (var i in tableChildren) {
@@ -2268,6 +2213,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 获取第一个tbody
+
 	function getFirstTbody() {
 		var tbody = null;
 		for (var i in tableChildren) {
@@ -2291,6 +2237,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 获取第一个tfoot
+
 	function getFirstTfoot() {
 		var tfoot = null;
 		for (var i in tableChildren) {
@@ -2313,6 +2260,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 转为thead
+
 	function trans2Head() {
 		// 选区为空
 		if (persist.selection.length <= 0) {
@@ -2418,6 +2366,7 @@ var MergeTable = window.MergeTable = (function() {
 
 	// td转th
 	// 转换后原属性及样式类消失
+
 	function trans2Th() {
 		// 选区为空
 		if (persist.selection.length <= 0) {
@@ -2436,10 +2385,6 @@ var MergeTable = window.MergeTable = (function() {
 					var value = ocell.innerHTML;
 					var cell = document.createElement("th");
 					cell.innerHTML = value;
-					if (ocell.getAttribute(defaults.realvalue))
-						cell.setAttribute(defaults.realvalue, ocell.getAttribute(defaults.realvalue));
-					if (ocell.getAttribute(defaults.showformat))
-						cell.setAttribute(defaults.showformat, ocell.getAttribute(defaults.showformat));
 					cell.colSpan = ocell.colSpan;
 					cell.rowSpan = ocell.rowSpan;
 					ocell.parentNode.insertBefore(cell, ocell);
@@ -2453,6 +2398,7 @@ var MergeTable = window.MergeTable = (function() {
 
 	// 特殊单元格转换为普通单元格
 	// TODO 与trans2Th方法合并（。。。）
+
 	function trans2Td() {
 		// 选区为空
 		if (persist.selection.length <= 0) {
@@ -2472,10 +2418,6 @@ var MergeTable = window.MergeTable = (function() {
 					// TODO 就这里不一样
 					var cell = document.createElement("td");
 					cell.innerHTML = value;
-					if (ocell.getAttribute(defaults.realvalue))
-						cell.setAttribute(defaults.realvalue, ocell.getAttribute(defaults.realvalue));
-					if (ocell.getAttribute(defaults.showformat))
-						cell.setAttribute(defaults.showformat, ocell.getAttribute(defaults.showformat));
 					cell.colSpan = ocell.colSpan;
 					cell.rowSpan = ocell.rowSpan;
 					ocell.parentNode.insertBefore(cell, ocell);
@@ -2488,6 +2430,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 拆分tbody
+
 	function separateTbody(tbody, start, length) {
 		var arr = [];
 		if (start === 0)
@@ -2568,6 +2511,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 锁定单元格
+
 	function lockCells() {
 		// 选区为空
 		if (persist.selection.length <= 0) {
@@ -2598,6 +2542,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	// 外部调用mouseup
+
 	function triggerOnCellMouseUp() {
 		var obj = TableUtils.index2Obj(persist.range.end);
 		if (obj) {
@@ -2607,192 +2552,6 @@ var MergeTable = window.MergeTable = (function() {
 					onCellMouseUpHandler(cell);
 			}
 		}
-	};
-
-	var doFormulaProxy = function() {
-		return function() {
-			defaults.formulaInput.value = defaults.formulaInput.value.replace(/\s*/g, "");
-			var index = persist.selection[0];
-			var obj = TableUtils.index2Obj(index);
-			var key = TableUtils.index2Tag(index);
-			if (defaults.formulaInput.value) {
-				if (ExcelFormula.checkExcute(key, defaults.formulaInput.value)) {
-					persist.storage[obj.y][obj.x].setAttribute(defaults.fmla, escape(defaults.formulaInput.value));
-					var msg = ExcelFormula.updateFormulas([{
-						index: key,
-						formula: defaults.formulaInput.value
-					}]);
-					if (msg.flag === false)
-						alert(msg.message);
-					else {
-						var result_arr = ExcelFormula.excute(key);
-						useResult(result_arr);
-					}
-				} else {
-					alert("公式存在嵌套!");
-				}
-			} else {
-				var msg = setFormulas();
-				if (msg.flag === false)
-					alert(msg.message);
-				else {
-					if (obj)
-						persist.storage[obj.y][obj.x].removeAttribute(defaults.fmla);
-				}
-			}
-		};
-	};
-
-	function setFormulaStorage() {
-		var arr = {};
-		for (var i = 0; i < persist.storage.length; i++) {
-			for (var j = 0; j < persist.storage[i].length; j++) {
-				if (persist.storage[i][j]) {
-					var a = TableUtils.num2Char(j + 1);
-					arr[a + (i + 1)] = persist.storage[i][j].getAttribute(defaults.realvalue) !== null ? persist.storage[i][j].getAttribute(defaults.realvalue) : persist.storage[i][j].innerHTML;
-				}
-			}
-		}
-		ExcelFormula.updateStorage(arr);
-	};
-
-	function setFormulas() {
-		var arr = [];
-		for (var i = 0; i < persist.storage.length; i++) {
-			for (var j = 0; j < persist.storage[i].length; j++) {
-				var td = persist.storage[i][j];
-				if (td) {
-					if (td.getAttribute(defaults.fmla)) {
-						arr.push({
-							index: TableUtils.num2Char(j + 1) + (i + 1),
-							formula: unescape(td.getAttribute(defaults.fmla))
-						});
-					}
-				}
-			}
-		}
-		ExcelFormula.clearFormulas();
-		return ExcelFormula.updateFormulas(arr);
-	};
-
-	function useResult(result_arr) {
-		if (!result_arr)
-			return;
-		var errorMsg = "";
-		for (var i = 0; i < result_arr.length; i++) {
-			var key = result_arr[i].index;
-			var obj = TableUtils.getTagObj(key);
-			var x_ = TableUtils.char2Num(obj.col);
-			var index = (obj.row - 1) + defaults.separator + (x_ - 1);
-			if (persist.storage[obj.row - 1]) {
-				var cell = persist.storage[obj.row - 1][x_ - 1];
-				if (cell) {
-					var result = result_arr[i].value;
-					if (result !== null && result !== undefined) {
-						if (result_arr[i].flag === false) {
-							errorMsg += result_arr[i].index + result + ",";
-							cell.innerHTML = "#ERROR";
-							if (cell.getAttribute(defaults.realvalue))
-								cell.setAttribute(defaults.realvalue, "");
-						} else {
-							if (cell.getAttribute(defaults.realvalue) || cell.getAttribute(defaults.showformat)) {
-								cell.setAttribute(defaults.realvalue, result);
-								if (cell.getAttribute(defaults.showformat))
-									showFormatterValue(cell);
-								else
-								    cell.innerHTML = result;
-							} else
-								cell.innerHTML = result;
-							/**
-						    if (persist.selection[0] && persist.selection[0].indexOf(index) != -1)
-							contentEditable(cell, index);
-						**/
-						}
-					}
-				}
-			}
-		}
-		if (errorMsg !== "") {
-			errorMsg = "错误:" + errorMsg.replace(/,$/, "");
-			// alert(errorMsg);
-		}
-	};
-
-	// 初始化更新公式及数据并计算
-	function refreshForlumaAndStorage() {
-		// 计算
-		setFormulaStorage();
-		var msg = setFormulas();
-		if (msg.flag === false)
-			alert(msg.message);
-		else {
-			var result_arr = ExcelFormula.excuteAll();
-			useResult(result_arr);
-			showFormatterValues();
-		}
-	};
-
-	function showFormatterValue(cell) {
-		if (cell) {
-			var realvalue = cell.getAttribute(defaults.realvalue);
-			if (realvalue !== null) {
-				var formation = cell.getAttribute(defaults.showformat);
-				if (formation) {
-					formation = unescape(formation);
-					formation = formation.replace(/\\/g, "");
-
-					var result = MSONumberFormatter.format(realvalue ? realvalue : cell.innerHTML, formation);
-					cell.innerHTML = result.val;
-				} else
-					cell.innerHTML = realvalue;
-			}
-		}
-	};
-
-	function showFormatterValues() {
-		for (var i = 0; i < persist.storage.length; i++) {
-			for (var j = 0; j < persist.storage[i].length; j++) {
-				showFormatterValue(persist.storage[i][j]);
-			}
-		}
-	};
-
-	function setMsoNumberFormat(formation) {
-		// 选区为空
-		if (persist.selection.length <= 0) {
-			alert(defaults.selectionNullMsg);
-			return;
-		}
-		// 选区数组转换二维数组
-		var selection2ArrayStack = selectionTrans2ArrayStack();
-		for (var i = 0; i < selection2ArrayStack.length; i++) {
-			for (var j = 0; j < selection2ArrayStack[i].length; j++) {
-				// 回去下标对象
-				var obj = TableUtils.index2Obj(selection2ArrayStack[i][j]);
-				// 存在单元格
-				var cell = persist.storage[obj.y][obj.x];
-				if (cell) {
-					// 设置样式
-					cell.setAttribute(defaults.showformat, escape(formation));
-					var realvalue = cell.getAttribute(defaults.realvalue);
-					var originValue = cell.innerHTML;
-					var result = MSONumberFormatter.format(realvalue ? realvalue : originValue, formation.replace(/\\/g, ""));
-					if (result.flag === true) {
-						cell.innerHTML = result.val;
-						if (realvalue === null)
-							cell.setAttribute(defaults.realvalue, originValue);
-					} else
-						cell.setAttribute(defaults.realvalue, originValue);
-				}
-			}
-		}
-		// 最后清除选区
-		clearSelection();
-		// 清空选区范围
-		persist.range = {
-			start: null,
-			end: null
-		};
 	};
 
 	// 公开方法
@@ -2853,9 +2612,6 @@ var MergeTable = window.MergeTable = (function() {
 		// 外部触发选区选择
 		triggerOnCellMouseUp: triggerOnCellMouseUp,
 		// 设置样式类
-		setSelectionCssClass: setSelectionCssClass,
-		// 重计算
-		refreshForlumaAndStorage: refreshForlumaAndStorage,
-		setMsoNumberFormat: setMsoNumberFormat
+		setSelectionCssClass: setSelectionCssClass
 	};
 })();
