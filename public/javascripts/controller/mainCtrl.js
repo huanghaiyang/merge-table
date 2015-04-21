@@ -35,7 +35,6 @@ angular.module('mergeTableApp')
 		});
 		$scope.initTable = function() {
 			var tableContainer = $("#tableContainer");
-			StorageTable.load(tableContainer.children().first()[0]);
 			MergeTable.init("tableContainer", tableContainer.html());
 		};
 		for (var i in MergeTable)
