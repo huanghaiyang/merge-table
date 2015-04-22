@@ -30,4 +30,9 @@ angular
           redirectTo: '/'
         });
     }
-  ]);
+  ]).run(function($rootScope) {
+    window.alert = function(msg) {
+      $rootScope.msg = msg;
+      $("#m-alert").modal("show");
+    };
+  });
