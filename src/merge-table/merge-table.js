@@ -354,7 +354,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	function splitV() {
-		if (checkSplitV()) {
+		if (checkSelection()  &&checkSplitV()) {
 			var obj = TableUtils.index2Obj(persist.range.start);
 			splitVHandler(obj.y, obj.x);
 		} else {
@@ -389,7 +389,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	function splitH() {
-		if (checkSplitH()) {
+		if (checkSelection()  &&checkSplitH()) {
 			var obj = TableUtils.index2Obj(persist.range.start);
 			splitHHandler(obj.y, obj.x);
 		} else {
