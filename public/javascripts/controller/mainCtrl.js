@@ -10,19 +10,24 @@
 angular.module('mergeTableApp')
 	.controller('mainCtrl', function($scope) {
 		$scope.rnumber = 10;
-		$scope.cnumber = 10;
+		$scope.cnumber = 20;
 		$scope.rnumberArray = {
 			0: 0
 		};
 		$scope.cnumberArray = {
 			0: 0
 		};
-		$scope.$watch("rnumber", function() {
+		$scope.$watch("rnumber", function(newVal , oldVal) {
 			$scope.rnumberArray = {
 				0: 0
 			};
 			for (var i = 0; i < $scope.rnumber; i++) {
 				$scope.rnumberArray[i] = i;
+			}
+
+			if(newVal < oldVal)
+			{
+
 			}
 		});
 		$scope.$watch("cnumber", function() {
