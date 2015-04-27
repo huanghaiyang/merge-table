@@ -8,7 +8,7 @@
  * Controller of the mergeTableApp
  */
 angular.module('mergeTableApp')
-	.controller('mainCtrl', function($scope) {
+	.controller('mainCtrl', function($scope, $compile, $templateCache) {
 		$scope.rnumber = 10;
 		$scope.cnumber = 20;
 		$scope.rnumberArray = {
@@ -17,17 +17,12 @@ angular.module('mergeTableApp')
 		$scope.cnumberArray = {
 			0: 0
 		};
-		$scope.$watch("rnumber", function(newVal , oldVal) {
+		$scope.$watch("rnumber", function(newVal, oldVal) {
 			$scope.rnumberArray = {
 				0: 0
 			};
 			for (var i = 0; i < $scope.rnumber; i++) {
 				$scope.rnumberArray[i] = i;
-			}
-
-			if(newVal < oldVal)
-			{
-
 			}
 		});
 		$scope.$watch("cnumber", function() {
@@ -38,9 +33,22 @@ angular.module('mergeTableApp')
 				$scope.cnumberArray[i] = i;
 			}
 		});
+		var tableContainer = $("#tableContainer");
 		$scope.initTable = function() {
-			var tableContainer = $("#tableContainer");
 			MergeTable.init("tableContainer", tableContainer.html());
+		};
+		$scope.create = function() {
+			tableContainer.html("");
+			var link = $compile($templateCache.get("template/table.html"));
+
+			/*
+			 * Executing the linking function
+			 * creates a new element.
+			 */
+			var new_elem = link($scope);
+
+			// Which we can then append to our DOM element.
+			tableContainer.append(new_elem);
 		};
 		for (var i in MergeTable)
 			$scope[i] = MergeTable[i];

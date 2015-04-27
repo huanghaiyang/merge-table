@@ -354,7 +354,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	function splitV() {
-		if (checkSelection()  &&checkSplitV()) {
+		if (checkSelection() && checkSplitV()) {
 			var obj = TableUtils.index2Obj(persist.range.start);
 			splitVHandler(obj.y, obj.x);
 		} else {
@@ -389,7 +389,7 @@ var MergeTable = window.MergeTable = (function() {
 	};
 
 	function splitH() {
-		if (checkSelection()  &&checkSplitH()) {
+		if (checkSelection() && checkSplitH()) {
 			var obj = TableUtils.index2Obj(persist.range.start);
 			splitHHandler(obj.y, obj.x);
 		} else {
@@ -1480,6 +1480,7 @@ var MergeTable = window.MergeTable = (function() {
 	// 表格初始化
 
 	function init(id_, str, options) {
+		clear();
 		id = id_;
 		for (var i in options) {
 			if (options.hasOwnProperty(i))

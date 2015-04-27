@@ -14,6 +14,9 @@
 			    <label for="cnumber">列数</label>
 			    <input type="number" class="form-control" id="cnumber" placeholder="列数" min=1 max=100 ng-model="cnumber">
 			  </div>
+			   <div class="form-group">
+			    <input type="button" class="btn btn-default" value="生成" ng-click="create()">
+			  </div>
 			</form>
 		</div>
 		<div class="col-xs-10">
@@ -42,13 +45,7 @@
 			  </div>
 			  <div class="panel-body">
 				<div class="table-responsive" id="tableContainer">
-				  <table class="table">
-				  	<tbody>
-				  		<tr ng-repeat="i in rnumberArray">
-				  			<td ng-repeat="i in cnumberArray" repeat-callback></td>
-				  		</tr>
-				  	</tbody>
-				  </table>
+				 	<merge-table></merge-table>
 				</div>
 			  </div>
 			</div>
