@@ -70,3 +70,6 @@ MergeTable.setSelectionCss('background-color:#dfdfdf;');</code></pre>
 </ul>
 
 以及其他 ...
+
+###演示示例
+![Alt text](sample.gif)
