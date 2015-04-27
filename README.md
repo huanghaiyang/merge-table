@@ -1,2 +1,2 @@
 # merge-table
-对HTML表格进行操作
+HTML表格设计器
