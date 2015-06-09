@@ -4,8 +4,10 @@ HTML表格设计器可以快速的可视化设计一个表格，可以对单元�
 ###第一步:
 <pre><code>grunt /*运行任务，生成js主文件*/</code></pre>
 
+###第二步:
+<pre><code>bower install /*安装依赖库*/</code></pre>
 
-###第二步：
+###第三步：
 <pre><code>npm start /*运行项目*/</code></pre>
 
 
